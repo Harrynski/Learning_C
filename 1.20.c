@@ -5,14 +5,13 @@
 
 # include <stdio.h>
 # define MAXLINE 1000
-# define tabspaces 4
+# define TABSPACES 4
 int get_line(char line[], int maxlength);
 void detab(char to[], char from[]);
 
-int main(){
+int main(void){
     char line[MAXLINE], new_line[MAXLINE];
-    int len, new_len, i;
-    char line_fixed[MAXLINE];
+    int len;
     while((len = get_line(line, MAXLINE))>0){
         detab(new_line, line);
         printf("%s", new_line);
@@ -23,6 +22,7 @@ int main(){
         //     //     printf("%c",line_fixed[i]);
         //     }
     }
+    return 0;
 }
 
 int get_line(char line[], int maxlength){
@@ -42,18 +42,16 @@ int get_line(char line[], int maxlength){
 /* copy: copy 'from' into 'to'; assume to is big enough */
 void detab(char to[], char from[])
 {
-    int i, j, k;
+    int i, j;
     i = j = 0;
     while (from[i] != '\0' && from[i] != '\n')
     {
-        if (from[i] == '\t')
-        {
-            for(k=0; k<tabspaces; k++)
-                {
-                to[j] = ' ';
-                j++;
-                }
-        }
+    if (from[i] == '\t') {
+        int spaces = TABSPACES - (j % TABSPACES);
+
+        while (spaces-- > 0)
+            to[j++] = ' ';
+    }
         else
         {
             to[j] = from[i];
