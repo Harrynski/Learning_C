@@ -42,56 +42,54 @@ int get_line(char line[], int maxlength){
     line[i] = '\0';
     return(i);
 }
-
-/* copy: copy 'from' into 'to'; assume to is big enough */
 void entab(char to[], char from[])
 {
-    int i, j, status, space_count;
-    i = j = space_count = 0;
-    status = OUT;
+    int i = 0;
+    int j = 0;
+    int column = 0;
 
     while (from[i] != '\0' && from[i] != '\n')
     {
-        if (status == IN && from[i] != ' ')
-        {
-            status = OUT;
-            int spaces_till_next_tab = TABSPACES - (j % TABSPACES);
-            int tabs_in_remaining_space = (space_count-spaces_till_next_tab)/TABSPACES;
-            int remainder = (space_count-spaces_till_next_tab)%TABSPACES;
-
-            if (spaces_till_next_tab < space_count)
-            {
-                to[j] = '\t';
-                j++;
-            }
-            // if (tabs_in_remaining_space>0)
-            // {
-            while(tabs_in_remaining_space>0)
-            {
-                to[j] = '\t';
-                j++;
-                tabs_in_remaining_space--;
-            }
-            while(remainder>0)
-            {
-                to[j] = ' ';
-                j++;
-                remainder--;
-            }
-            space_count = 0;
-
-        }
         if (from[i] == ' ')
         {
-            status = IN;
-            space_count++;
+            int end_column = column;
+
+            /* Find where this run of blanks ends. */
+            while (from[i] == ' ')
+            {
+                end_column++;
+                i++;
+            }
+
+            /* Reach that column using the fewest characters. */
+            while (column < end_column)
+            {
+                int spaces_to_tab = TABSPACES - (column % TABSPACES);
+
+                if (spaces_to_tab > 1 && column + spaces_to_tab <= end_column)
+                {
+                    to[j++] = '\t';
+                    column += spaces_to_tab;
+                }
+                else
+                {
+                    to[j++] = ' ';
+                    column++;
+                }
+            }
         }
         else
         {
-            to[j] = from[i];
-            j++;
+            to[j++] = from[i];
+
+            if (from[i] == '\t')
+                column += TABSPACES - (column % TABSPACES);
+            else
+                column++;
+
+            i++;
         }
-        ++i;
     }
+
     to[j] = '\0';
 }
